@@ -34,12 +34,12 @@ static const FastPin<4> motor3;
 static Stepper motor(stepsPerRot, motor0, motor1, motor2, motor3);
 
 #define lightLevelPin A1
+#define referenceLevelPin A0
 #define standbyDelayMs 100
-#define bootDelayMs 100
 #define closeDirection (-1)
 #define openDirection (1)
-#define lightLevelHysteresis 100
-#define lightLevelMargin 10
+#define lightLevelHysteresisPercent 10
+#define lightLevelMarginPercent 1
 
 enum class Mode: byte {
     open, closed, opening, closing
@@ -54,20 +54,19 @@ static unsigned long lastMillis = 0;
 void setup()
 {
     pinMode(lightLevelPin, INPUT);
+    pinMode(referenceLevelPin, INPUT);
     digitalWrite(lightLevelPin, LOW);
-    analogReference(EXTERNAL);
+    digitalWrite(referenceLevelPin, LOW);
     for_pin([](const FastAnyPin p){ p.input(); p.high(); },
 	    endSwOpen, endSwClosed, manualOpen, manualClose);
     indicator.high();
     indicator.output();
     motor.setSpeed(stepperRpm);
-    delay(bootDelayMs); // Wait after changing analog reference.
 }
 
 void loop()
 {
-    int lightLevel;
-    bool daytime, nighttime;
+    bool daytime = false, nighttime = false;
     bool override = !manualOpen.get() || !manualClose.get();
 
     if (!endSwOpen.get()) {
@@ -81,9 +80,10 @@ void loop()
     } else if (!manualClose.get() && mode != Mode::closed) {
 	changeMode(Mode::closing);
     } else {
-        lightLevel = analogRead(lightLevelPin);
-	nighttime = lightLevel < (1024 - lightLevelHysteresis);
-	daytime = lightLevel > (1024 - lightLevelMargin);
+        float lightLevel = (float)(analogRead(lightLevelPin)) /
+                           (float)(analogRead(referenceLevelPin));
+	nighttime = lightLevel < (1. - lightLevelHysteresisPercent / 100.);
+	daytime = lightLevel > (1. - lightLevelMarginPercent / 100.);
 	if (nighttime) {
 	    indicator.low();
 	} else if (daytime) {
