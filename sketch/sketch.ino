@@ -58,7 +58,7 @@ void setup()
     digitalWrite(lightLevelPin, LOW);
     digitalWrite(referenceLevelPin, LOW);
     for_pin([](const FastAnyPin p){ p.input(); p.high(); },
-	    endSwOpen, endSwClosed, manualOpen, manualClose);
+        endSwOpen, endSwClosed, manualOpen, manualClose);
     indicator.high();
     indicator.output();
     motor.setSpeed(stepperRpm);
@@ -70,61 +70,61 @@ void loop()
     bool override = !manualOpen.get() || !manualClose.get();
 
     if (!endSwOpen.get()) {
-	changeMode(Mode::open);
+        changeMode(Mode::open);
     } else if (!endSwClosed.get()) {
-	changeMode(Mode::closed);
+        changeMode(Mode::closed);
     }
 
     if (!manualOpen.get() && mode != Mode::open) {
-	changeMode(Mode::opening);
+        changeMode(Mode::opening);
     } else if (!manualClose.get() && mode != Mode::closed) {
-	changeMode(Mode::closing);
+        changeMode(Mode::closing);
     } else {
         float lightLevel = (float)(analogRead(lightLevelPin)) /
-                           (float)(analogRead(referenceLevelPin));
-	nighttime = lightLevel < (1. - lightLevelHysteresisPercent / 100.);
-	daytime = lightLevel > (1. - lightLevelMarginPercent / 100.);
-	if (nighttime) {
-	    indicator.low();
-	} else if (daytime) {
-	    indicator.high();
-	} else {
-	    unsigned long ms = millis();
-	    if (ms - lastMillis > 100) {
-	        indicator.toggle();
-	        lastMillis = ms;
-	    }
-	}
+            (float)(analogRead(referenceLevelPin));
+        nighttime = lightLevel < (1. - lightLevelHysteresisPercent / 100.);
+        daytime = lightLevel > (1. - lightLevelMarginPercent / 100.);
+        if (nighttime) {
+            indicator.low();
+        } else if (daytime) {
+            indicator.high();
+        } else {
+            unsigned long ms = millis();
+            if (ms - lastMillis > 100) {
+                indicator.toggle();
+                lastMillis = ms;
+            }
+        }
     }
 
     switch (mode) {
     case Mode::open:
         if (nighttime && !override) {
-	    changeMode(Mode::closing);
-	    moveMotor(closeDirection);
+            changeMode(Mode::closing);
+            moveMotor(closeDirection);
         } else {
-	    stopMotor();
-	    delay(standbyDelayMs);
+            stopMotor();
+            delay(standbyDelayMs);
         }
-	break;
+        break;
     case Mode::closed:
         if (daytime && !override) {
-	    changeMode(Mode::opening);
-	    moveMotor(openDirection);
+            changeMode(Mode::opening);
+            moveMotor(openDirection);
         } else {
-	    stopMotor();
-	    delay(standbyDelayMs);
+            stopMotor();
+            delay(standbyDelayMs);
         }
-	break;
+        break;
     case Mode::opening:
         moveMotor(openDirection);
         if (nighttime && !override)
-	    changeMode(Mode::closing);
+            changeMode(Mode::closing);
         break;
     case Mode::closing:
         moveMotor(closeDirection);
         if (daytime && !override)
-	    changeMode(Mode::opening);
+            changeMode(Mode::opening);
         break;
     }
 }
