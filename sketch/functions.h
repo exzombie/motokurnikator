@@ -26,7 +26,17 @@ inline static void changeMode(Mode m)
 
 inline static void moveMotor(int8_t direction)
 {
+#ifdef MOTOR_TYPE_STEPPER
     motor.step(direction * stepsPerRot);
+#else
+    if (direction > 0) {
+      motor3.low();
+      motor1.high();
+    } else {
+      motor1.low();
+      motor3.high();
+    }
+#endif
 }
 
 template <class Pin>
