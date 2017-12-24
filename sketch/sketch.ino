@@ -21,6 +21,8 @@
 
 #include <FastPin.h>
 
+static const unsigned long maxSpinTimeMs = 5000;
+
 static const FastPin<2> endSwOpen;
 static const FastPin<3> endSwClosed;
 static const FastPin<9> manualOpen;
@@ -56,8 +58,10 @@ enum class Mode: byte {
 };
 
 static Mode mode = Mode::closing;
+static Mode lastMode = Mode::closing;
 
-static unsigned long lastMillis = 0;
+static unsigned long lastMillisBlink = 0;
+static unsigned long lastMillisMotor = 0;
 
 #include "functions.h"
 
@@ -105,9 +109,9 @@ void loop()
             indicator.high();
         } else {
             unsigned long ms = millis();
-            if (ms - lastMillis > 100) {
+            if (ms - lastMillisBlink > 100) {
                 indicator.toggle();
-                lastMillis = ms;
+                lastMillisBlink = ms;
             }
         }
     }

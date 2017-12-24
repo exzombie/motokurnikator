@@ -22,10 +22,35 @@
 inline static void changeMode(Mode m)
 {
     mode = m;
+    if (m != lastMode) {
+      if (m == Mode::opening || m == Mode::closing) {
+        lastMillisMotor = millis();
+      }
+      lastMode = m;
+    }
+}
+
+template <class Pin>
+inline static void lowPin(Pin p)
+{
+    p.low();
+}
+
+inline static void stopMotor()
+{
+    for_pin(lowPin, motor0, motor1, motor2, motor3);
 }
 
 inline static void moveMotor(int8_t direction)
 {
+    if (millis() - lastMillisMotor > maxSpinTimeMs) {
+        stopMotor();
+        if (direction == openDirection) {
+            changeMode(Mode::open);
+        } else {
+          changeMode(Mode::closed);
+        }
+    }
 #ifdef MOTOR_TYPE_STEPPER
     motor.step(direction * stepsPerRot);
 #else
@@ -39,13 +64,3 @@ inline static void moveMotor(int8_t direction)
 #endif
 }
 
-template <class Pin>
-inline static void lowPin(Pin p)
-{
-    p.low();
-}
-
-inline static void stopMotor()
-{
-    for_pin(lowPin, motor0, motor1, motor2, motor3);
-}
