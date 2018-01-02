@@ -36,12 +36,12 @@ simple to build, both in terms of electronics and the door itself. See
 ## How to build the firmware? ##
 
 Make sure you have Arduino IDE version 1.5 or later. Open the
-preferences.txt file and set the custom_cpu field to the actual
+`preferences.txt` file and set the custom_cpu field to the actual
 variant you use (either 84 or 44).
 
 If you like using the IDE, use the runide.sh script to start it. This
-will make it use the package-provided preferences.txt, libraries and
-build directory. It will pollute the preferences.txt by dumping all
+will make it use the package-provided `preferences.txt`, libraries and
+build directory. It will pollute the `preferences.txt` by dumping all
 the IDE settings there, but since you're using the IDE, this doesn't
 matter to you.
 
@@ -52,9 +52,14 @@ the script contains a commented line using that. The uncommented line
 uses an Arduino with the ArduinoISP sketch as the programmer. Select
 the correct port for that in preferences.txt.
 
-The variables and preprocessor macros at the top of the sketch define
-which pin belongs to which switch, the motor direction and the amount
-of hysteresis. Adjust to match your particular circuit.
+The variables and preprocessor macros at the top of the sketch define which pin
+belongs to which switch, the motor direction and the amount of hysteresis.
+Adjust to match your particular circuit. If you are using a DC motor, disable
+the `MOTOR_TYPE_STEPPER` definition and tie the motor's H-bridge to pins
+`motor1` and `motor3`. There is also a timeout setting which should be set to
+just a bit longer than necessary for the door to fully open or close; it
+prevents the motor from draining your battery (if you have one) in case
+something breaks.
 
 [4]: http://openprog.altervista.org/ "Open Programmer"
 
@@ -78,7 +83,8 @@ which are triggered by the door itself (see the [image][1]). There is
 a manual override switch so you can open or close the door
 anytime. The door is mounted to the frame via a pair of rails. The
 stepper motor turns a threaded rod which moves the door along the
-rails.
+rails. Another simple design has the motor turn a spool of rope on which
+the door is hung.
 
 The circuit schematic is deliberately vague because the actual parts
 used don't matter. Have a different voltage regulator on hand? Use
@@ -87,7 +93,8 @@ only part that matters is the microcontroller, unless you modify the
 software quite a bit. There are a few points to take into
 consideration though.
 
-It doesn't matter whether your stepper motor is unipolar or bipolar,
+If you are using a DC motor, drive it through an H-bridge. For a stepper
+motor, it doesn't matter whether it is unipolar or bipolar,
 just make sure you have the correct driver chip. The circuit is made
 to use four wires, but if you have a two wire motor, you only have to
 replace the line in the program which defines the motor with the
