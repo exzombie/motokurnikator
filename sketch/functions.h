@@ -38,7 +38,7 @@ inline static void lowPin(Pin p)
 
 inline static void stopMotor()
 {
-    for_pin(lowPin, motor0, motor1, motor2, motor3);
+    for_pin(lowPin, motor1, motor2);
 }
 
 inline static void moveMotor(int8_t direction)
@@ -51,16 +51,13 @@ inline static void moveMotor(int8_t direction)
           changeMode(Mode::closed);
         }
     }
-#ifdef MOTOR_TYPE_STEPPER
-    motor.step(direction * stepsPerRot);
-#else
+
     if (direction > 0) {
-      motor3.low();
+      motor2.low();
       motor1.high();
     } else {
       motor1.low();
-      motor3.high();
+      motor2.high();
     }
-#endif
 }
 

@@ -78,13 +78,14 @@ daytime, and blinking when the voltage is in the hysteresis
 range. This makes it easier to adjust the potentiometer (and possibly
 decide to increase the hysteresis).
 
-The "open" and "closed" positions are defined by the two end switches,
-which are triggered by the door itself (see the [image][1]). There is
-a manual override switch so you can open or close the door
-anytime. The door is mounted to the frame via a pair of rails. The
-stepper motor turns a threaded rod which moves the door along the
-rails. Another simple design has the motor turn a spool of rope on which
-the door is hung.
+The "open" and "closed" positions are defined by the two end switches, which
+are triggered by the door itself (see the [image][1]). There is a manual
+override switch so you can open or close the door anytime. The door is mounted
+to the frame via a pair of rails. The stepper motor turns a threaded rod which
+moves the door along the rails. This approach was chosen because a stepper
+motor was on hand, but has turned out to be unreliable. Support for steppers
+was removed and it is recommended to use a normal DC motor through an H-bridge
+to drive a winch.
 
 The circuit schematic is deliberately vague because the actual parts
 used don't matter. Have a different voltage regulator on hand? Use
@@ -92,18 +93,6 @@ that then. Don't have a 10k pot? Use 5k if you want. And so on. The
 only part that matters is the microcontroller, unless you modify the
 software quite a bit. There are a few points to take into
 consideration though.
-
-If you are using a DC motor, drive it through an H-bridge. For a stepper
-motor, it doesn't matter whether it is unipolar or bipolar,
-just make sure you have the correct driver chip. The circuit is made
-to use four wires, but if you have a two wire motor, you only have to
-replace the line in the program which defines the motor with the
-version for two wires (see [this page][5]). Note that the circuit
-schematic doesn't define any power lines to the motor. Depending on
-the motor and the driver chip, you may or may not need to power it
-through the same regulator as the circuit itself. In our case, the
-motor is powered from the 12V battery directly, while the circuit is
-powered through the 5V regulator. The GND line is shared, of course.
 
 A photoresistor as it's wired in the schematic can be overly
 sensitive. First, ensure that you are measuring the light you actually
@@ -117,8 +106,6 @@ around. You may want to increase the size of the hysteresis in
 software. If you still can't make it work, there's nothing stopping
 you from ripping out the photoresistor and putting in something
 different, like a phototransistor or a more sophisticated circuit.
-
-[5]: http://www.arduino.cc/en/Reference/Stepper "Arduino stepper library"
 
 ## Who put this together? ##
 

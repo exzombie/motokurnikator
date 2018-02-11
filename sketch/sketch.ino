@@ -16,9 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Comment this to use a DC motor.
-#define MOTOR_TYPE_STEPPER
-
 #include <FastPin.h>
 
 static const unsigned long maxSpinTimeMs = 5000;
@@ -29,21 +26,8 @@ static const FastPin<9> manualOpen;
 static const FastPin<10> manualClose;
 static const FastPin<8> indicator;
 
-static const FastPin<7> motor0;
 static const FastPin<5> motor1;
-static const FastPin<6> motor2;
-static const FastPin<4> motor3;
-
-#ifdef MOTOR_TYPE_STEPPER
-
-#include <Stepper.h>
-static const byte stepsPerRot = 48;
-static const byte stepperRpm = 500;
-static Stepper motor(stepsPerRot, motor0, motor1, motor2, motor3);
-
-#else
-
-#endif
+static const FastPin<4> motor2;
 
 #define lightLevelPin A1
 #define referenceLevelPin A0
@@ -75,12 +59,8 @@ void setup()
         endSwOpen, endSwClosed, manualOpen, manualClose);
     indicator.high();
     indicator.output();
-#ifdef MOTOR_TYPE_STEPPER
-    motor.setSpeed(stepperRpm);
-#else
     for_pin([](const FastAnyPin p){ p.output(); p.low(); },
-        motor0, motor1, motor2, motor3);
-#endif
+        motor1, motor2);
 }
 
 void loop()
