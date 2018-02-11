@@ -47,8 +47,6 @@ static Mode lastMode = Mode::closing;
 static unsigned long lastMillisBlink = 0;
 static unsigned long lastMillisMotor = 0;
 
-#include "functions.h"
-
 void setup()
 {
     pinMode(lightLevelPin, INPUT);
@@ -125,5 +123,46 @@ void loop()
         if (daytime && !override)
             changeMode(Mode::opening);
         break;
+    }
+}
+
+inline static void changeMode(Mode m)
+{
+    mode = m;
+    if (m != lastMode) {
+      if (m == Mode::opening || m == Mode::closing) {
+        lastMillisMotor = millis();
+      }
+      lastMode = m;
+    }
+}
+
+template <class Pin> inline static void lowPin(Pin p)
+{
+    p.low();
+}
+
+inline static void stopMotor()
+{
+    for_pin(lowPin, motor1, motor2);
+}
+
+inline static void moveMotor(int8_t direction)
+{
+    if (millis() - lastMillisMotor > maxSpinTimeMs) {
+        stopMotor();
+        if (direction == openDirection) {
+            changeMode(Mode::open);
+        } else {
+          changeMode(Mode::closed);
+        }
+    }
+
+    if (direction > 0) {
+      motor2.low();
+      motor1.high();
+    } else {
+      motor1.low();
+      motor2.high();
     }
 }
