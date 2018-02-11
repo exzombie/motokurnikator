@@ -29,13 +29,13 @@ static const FastPin<8> indicator;
 static const FastPin<5> motor1;
 static const FastPin<4> motor2;
 
-#define lightLevelPin A1
-#define referenceLevelPin A0
-#define standbyDelayMs 100
-#define closeDirection (-1)
-#define openDirection (1)
-#define lightLevelHysteresisPercent 10
-#define lightLevelMarginPercent 1
+static const byte lightLevelPin = A1;
+static const byte referenceLevelPin = A0;
+static const byte standbyDelayMs = 100;
+static const byte closeDirection = -1;
+static const byte openDirection = 1;
+static const byte lightLevelHysteresisPercent = 10;
+static const byte lightLevelMarginPercent = 1;
 
 enum class Mode: byte {
     open, closed, opening, closing
