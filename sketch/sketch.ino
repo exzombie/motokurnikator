@@ -20,22 +20,22 @@
 
 static const unsigned long maxSpinTimeMs = 5000;
 
-static const FastPin<2> endSwOpen;
-static const FastPin<3> endSwClosed;
+static const FastPin<3> endSwOpen;
+static const FastPin<4> endSwClosed;
 static const FastPin<9> manualOpen;
 static const FastPin<10> manualClose;
 static const FastPin<8> indicator;
 
-static const FastPin<5> motor1;
-static const FastPin<4> motor2;
+static const FastPin<6> motor1;
+static const FastPin<7> motor2;
 
-static const byte lightLevelPin = A1;
-static const byte referenceLevelPin = A0;
+static const byte lightLevelPin = A2;
+static const byte dayLevelPin = A0;
+static const byte nightLevelPin = A1;
+
 static const byte standbyDelayMs = 100;
 static const byte closeDirection = -1;
 static const byte openDirection = 1;
-static const byte lightLevelHysteresisPercent = 10;
-static const byte lightLevelMarginPercent = 1;
 
 enum class Mode: byte {
     open, closed, opening, closing
@@ -50,7 +50,7 @@ static unsigned long lastMillisMotor = 0;
 void setup()
 {
     for_pin([](const FastAnyPin p){ p.input(); p.low(); },
-        lightLevelPin, referenceLevelPin);
+        lightLevelPin, dayLevelPin, nightLevelPin);
     for_pin([](const FastAnyPin p){ p.input(); p.high(); },
         endSwOpen, endSwClosed, manualOpen, manualClose);
     indicator.high();
@@ -75,10 +75,13 @@ void loop()
     } else if (!manualClose.get() && mode != Mode::closed) {
         changeMode(Mode::closing);
     } else {
-        float lightLevel = (float)(analogRead(lightLevelPin)) /
-            (float)(analogRead(referenceLevelPin));
-        nighttime = lightLevel < (1. - lightLevelHysteresisPercent / 100.);
-        daytime = lightLevel > (1. - lightLevelMarginPercent / 100.);
+        int rawLightLevel = analogRead(lightLevelPin);
+        float dayLightLevel = (float)(rawLightLevel) /
+            (float)(analogRead(dayLevelPin));
+        float nightLightLevel = (float)(rawLightLevel) /
+            (float)(analogRead(nightLevelPin));
+        nighttime = nightLightLevel < 1.;
+        daytime = dayLightLevel > 1.;
         if (nighttime) {
             indicator.low();
         } else if (daytime) {
