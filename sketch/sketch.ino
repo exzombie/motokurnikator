@@ -49,10 +49,8 @@ static unsigned long lastMillisMotor = 0;
 
 void setup()
 {
-    pinMode(lightLevelPin, INPUT);
-    pinMode(referenceLevelPin, INPUT);
-    digitalWrite(lightLevelPin, LOW);
-    digitalWrite(referenceLevelPin, LOW);
+    for_pin([](const FastAnyPin p){ p.input(); p.low(); },
+        lightLevelPin, referenceLevelPin);
     for_pin([](const FastAnyPin p){ p.input(); p.high(); },
         endSwOpen, endSwClosed, manualOpen, manualClose);
     indicator.high();
