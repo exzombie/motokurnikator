@@ -1,6 +1,6 @@
 /*
     motokurnikator, an automated chicken coop door controller.
-    Copyright (C) 2015 Jure Varlec <jure@varlec.si>
+    Copyright (C) 2015-2018 Jure Varlec <jure@varlec.si>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
