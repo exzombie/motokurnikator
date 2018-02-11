@@ -20,9 +20,6 @@ simple to build, both in terms of electronics and the door itself. See
   circuit is simple enough to build on a perfboard.
 * An Arduino sketch to drive the whole thing using an ATtiny44 or
   ATtiny84 microcontroller.
-* A board specification to allow the ATtiny44 microcontroller to be
-  used with the Arduino framework. Thanks to David A. Mellis for
-  [this library][3].
 * A library to control microcontroller pins with much less overhead
   than Arduino's digitalWrite(). Not that speed matters for this
   project, it serves as a demonstration.
@@ -31,26 +28,13 @@ simple to build, both in terms of electronics and the door itself. See
   both for those who like using the IDE and those who don't.
 
 [2]: http://www.kicad-pcb.org/ "KiCAD website"
-[3]: https://github.com/damellis/attiny "ATtiny Arduino library"
 
 ## How to build the firmware? ##
 
-Make sure you have Arduino IDE version 1.5 or later. Open the
-`preferences.txt` file and set the custom_cpu field to the actual
-variant you use (either 84 or 44).
-
-If you like using the IDE, use the runide.sh script to start it. This
-will make it use the package-provided `preferences.txt`, libraries and
-build directory. It will pollute the `preferences.txt` by dumping all
-the IDE settings there, but since you're using the IDE, this doesn't
-matter to you.
-
-If you don't like the IDE, use the compile.sh and upload.sh
-scripts. The latter should be modified for the type of programmer you
-use. At the time of writing, I am using the [Open Programmer][4] and
-the script contains a commented line using that. The uncommented line
-uses an Arduino with the ArduinoISP sketch as the programmer. Select
-the correct port for that in preferences.txt.
+Make sure you have the latest version of the Arduino IDE. Install
+[ATTinyCore][3]; it is available in the IDE's board manager. Select the
+Attiny84/44/24 board and use the internal clock (8 or 1 MHz; don't forget to
+"Burn bootloader" after any clock change) and clockwise pin mapping.
 
 The variables and preprocessor macros at the top of the sketch define which pin
 belongs to which switch, the motor direction and the amount of hysteresis.
@@ -61,7 +45,7 @@ just a bit longer than necessary for the door to fully open or close; it
 prevents the motor from draining your battery (if you have one) in case
 something breaks.
 
-[4]: http://openprog.altervista.org/ "Open Programmer"
+[3]: https://github.com/SpenceKonde/ATTinyCore "ATtiny Arduino library"
 
 ## What about the circuit? ##
 
