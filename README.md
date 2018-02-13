@@ -23,9 +23,6 @@ simple to build, both in terms of electronics and the door itself. See
 * A library to control microcontroller pins with much less overhead
   than Arduino's digitalWrite(). Not that speed matters for this
   project, it serves as a demonstration.
-* Build scripts to allow compiling and uploading using the Arduino IDE
-  without actually running the IDE. This makes the package easy to use
-  both for those who like using the IDE and those who don't.
 
 [2]: http://www.kicad-pcb.org/ "KiCAD website"
 
