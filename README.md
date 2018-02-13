@@ -37,39 +37,33 @@ Attiny84/44/24 board and use the internal clock (8 or 1 MHz; don't forget to
 "Burn bootloader" after any clock change) and clockwise pin mapping.
 
 The variables and preprocessor macros at the top of the sketch define which pin
-belongs to which switch, the motor direction and the amount of hysteresis.
-Adjust to match your particular circuit. If you are using a DC motor, disable
-the `MOTOR_TYPE_STEPPER` definition and tie the motor's H-bridge to pins
-`motor1` and `motor3`. There is also a timeout setting which should be set to
-just a bit longer than necessary for the door to fully open or close; it
-prevents the motor from draining your battery (if you have one) in case
-something breaks.
+belongs to which switch, potentiometer and motor pin. They also define the
+motor direction and timeouts. Adjust to match your particular circuit. The
+timeout setting should be set to just a bit longer than is necessary for the
+door to fully open or close; it prevents the motor from draining your battery
+(if you have one) in case something breaks.
 
 [3]: https://github.com/SpenceKonde/ATTinyCore "ATtiny Arduino library"
 
 ## What about the circuit? ##
 
-Okay, this is how the whole thing works. The light level is measured
-through the photoresistor (R3 on the circuit schematic). The RV1
-potentiometer decides the ADC reference voltage. If the light level is
-at or above the reference voltage, it is daytime and the door is
-opened. If the light level drops below a certain amount (about 10%
-below reference by default), it is nighttime and the door is
-closed. Those 10% represent a hysteresis which ensures that the door
-doesn't try to both open and close at the same time in twilight. There
-is an indicator LED (D1) which is dark during nighttime, lit during
-daytime, and blinking when the voltage is in the hysteresis
-range. This makes it easier to adjust the potentiometer (and possibly
-decide to increase the hysteresis).
+Okay, this is how the whole thing works. The light level is measured through
+the photoresistor (R3 on the circuit schematic). The RV1 and RV2 potentiometers
+decide choose the light level at which the door will open or close; one of the
+potentiometers is for opening and the other for closing because the morning and
+evening light levels will usually be different. If the light level is at or
+above the chosen daytime level, it is daytime and the door is opened. If the
+light level drops below the chosen nighttime level, it is nighttime and the
+door is closed.
 
-The "open" and "closed" positions are defined by the two end switches, which
-are triggered by the door itself (see the [image][1]). There is a manual
-override switch so you can open or close the door anytime. The door is mounted
-to the frame via a pair of rails. The stepper motor turns a threaded rod which
-moves the door along the rails. This approach was chosen because a stepper
-motor was on hand, but has turned out to be unreliable. Support for steppers
-was removed and it is recommended to use a normal DC motor through an H-bridge
-to drive a winch.
+The "open" and "closed" positions of the door are defined by the two end
+switches, which are triggered by the door itself (see the [image][1]). There is
+a manual override switch so you can open or close the door anytime. The door is
+mounted to the frame via a pair of rails. The stepper motor turns a threaded
+rod which moves the door along the rails. This approach was chosen because a
+stepper motor was on hand, but has turned out to be unreliable. Support for
+steppers was removed and it is recommended to use a normal DC motor through an
+H-bridge to drive a winch, the door being raised and lowered by a cable.
 
 The circuit schematic is deliberately vague because the actual parts
 used don't matter. Have a different voltage regulator on hand? Use
@@ -78,18 +72,18 @@ only part that matters is the microcontroller, unless you modify the
 software quite a bit. There are a few points to take into
 consideration though.
 
-A photoresistor as it's wired in the schematic can be overly
-sensitive. First, ensure that you are measuring the light you actually
-want: put the photoresistor in an enclosed space so that it is only
-watching the diffuse light scattered by its surroundings. Make sure it
-can't be affected by the sky, shadows and such. Next, pick a
-reasonable value for R2. It must **not** be so low as to draw too much
-current, even when R3 is fully conducting. What constitutes a
-reasonable value depends on what kind of photoresistor you have. Play
-around. You may want to increase the size of the hysteresis in
-software. If you still can't make it work, there's nothing stopping
-you from ripping out the photoresistor and putting in something
-different, like a phototransistor or a more sophisticated circuit.
+A photoresistor as it's wired in the schematic can be overly sensitive. First,
+ensure that you are measuring the light you actually want: put the
+photoresistor in an enclosed space so that it is only watching the diffuse
+light scattered by its surroundings. Make sure it can't be affected by the sky,
+direct sunlight, shadows and such. Next, pick a reasonable value for R2. It
+must **not** be so low as to draw too much current, even when R3 (the
+photoresistor) is fully conducting. What constitutes a reasonable value depends
+on what kind of photoresistor you have. Play around. It helps to use a
+voltmeter to see how the choice of R2 affects the voltage drop across R3 and to
+choose the right levels with RV1 and RV2. If you still can't make it work,
+there's nothing stopping you from ripping out the photoresistor and putting in
+something different, like a phototransistor or a more sophisticated circuit.
 
 ## Who put this together? ##
 
