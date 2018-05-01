@@ -47,6 +47,8 @@ static Mode lastMode = Mode::closing;
 static unsigned long lastMillisBlink = 0;
 static unsigned long lastMillisMotor = 0;
 
+static void moveMotor(int8_t direction, bool noTimeout = false);
+
 void setup()
 {
     for_pin([](const FastAnyPin p){ p.input(); p.low(); },
@@ -70,16 +72,26 @@ void loop()
         changeMode(Mode::closed);
     }
 
-    if (!manualOpen.get() && mode != Mode::open) {
+    if (!manualOpen.get() && endSwClosed.get()) {
         changeMode(Mode::opening);
-    } else if (!manualClose.get() && mode != Mode::closed) {
+    } else if (!manualClose.get() && endSwOpen.get()) {
         changeMode(Mode::closing);
     } else {
         int rawLightLevel = analogRead(lightLevelPin);
+        int rawDayLevel = analogRead(dayLevelPin);
+        int rawNightLevel = analogRead(nightLevelPin);
+
+        // Check that pots are set sanely. Makes sure nighttime and daytime
+        // cannot happen simultaneously (see below).
+        if (rawNightLevel >= rawDayLevel) {
+          stopMotor();
+          return;
+        }
+
         float dayLightLevel = (float)(rawLightLevel) /
-            (float)(analogRead(dayLevelPin));
+            (float)(rawDayLevel);
         float nightLightLevel = (float)(rawLightLevel) /
-            (float)(analogRead(nightLevelPin));
+            (float)(rawNightLevel);
         nighttime = nightLightLevel < 1.;
         daytime = dayLightLevel > 1.;
         if (nighttime) {
@@ -148,15 +160,16 @@ inline static void stopMotor()
     for_pin(lowPin, motor1, motor2);
 }
 
-inline static void moveMotor(int8_t direction)
+static void moveMotor(int8_t direction, bool noTimeout)
 {
-    if (millis() - lastMillisMotor > maxSpinTimeMs) {
+    if (!noTimeout && millis() - lastMillisMotor > maxSpinTimeMs) {
         stopMotor();
         if (direction == openDirection) {
             changeMode(Mode::open);
         } else {
-          changeMode(Mode::closed);
+            changeMode(Mode::closed);
         }
+        return;
     }
 
     if (direction > 0) {
