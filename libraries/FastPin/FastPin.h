@@ -102,38 +102,58 @@ struct FastPin;
    The implementation for ATtiny24 et al. should make this clearer :)
 */
 
-#define FAST_PINS_DEFINE_STRUCT						\
-    struct FastAnyPin							\
-    {									\
-        FastAnyPin(): pin(255) {}                                       \
-        FastAnyPin(uint8_t pin_): pin(pin_) {}				\
-        void high() const { FAST_PINS_IF_PATTERN(PORT, SET) }	        \
-	void low() const { FAST_PINS_IF_PATTERN(PORT, CLR) }		\
-	void toggle() const { FAST_PINS_IF_PATTERN(PIN, SET) }		\
-	void set(bool h) const { if (h) high(); else low(); }		\
-	bool get() const { FAST_PINS_IF_PATTERN(PIN, RGET) }		\
-	void output() const { FAST_PINS_IF_PATTERN(DDR, SET) }		\
-	void input() const { FAST_PINS_IF_PATTERN(DDR, CLR) }		\
-	void direction(bool out) const { if (out) output(); else input(); } \
-	operator uint8_t() const { return pin; }			\
-    private:								\
-        uint8_t pin;							\
-    };									\
-									\
-    template <uint8_t pin>						\
-    struct FastPin							\
-    {									\
-	FAST_PINS_CHECK(pin)						\
-        static void high() { FAST_PINS_IF_PATTERN(PORT, SET) }	        \
-	static void low() { FAST_PINS_IF_PATTERN(PORT, CLR) }		\
-	static void toggle() { FAST_PINS_IF_PATTERN(PIN, SET) }		\
-	static void set(bool h) { if (h) high(); else low(); }		\
-	static bool get() { FAST_PINS_IF_PATTERN(PIN, RGET) }		\
-	static void output() { FAST_PINS_IF_PATTERN(DDR, SET) }		\
-	static void input() { FAST_PINS_IF_PATTERN(DDR, CLR) }		\
-	static void direction(bool out) { if (out) output(); else input(); } \
-	operator FastAnyPin() const { return FastAnyPin(pin); }		\
-	operator uint8_t() const { return pin; }			\
+#define FAST_PINS_DEFINE_STRUCT                                         \
+    struct FastAnyPin                                                   \
+    {                                                                   \
+        FastAnyPin(): pin(255) __attribute__((always_inline)) {}        \
+        FastAnyPin(uint8_t pin_): pin(pin_)                             \
+            __attribute__((always_inline)) {}                           \
+        void high() const __attribute__((always_inline))                \
+            { FAST_PINS_IF_PATTERN(PORT, SET) }                         \
+        void low() const __attribute__((always_inline))                 \
+            { FAST_PINS_IF_PATTERN(PORT, CLR) }                         \
+        void toggle() const __attribute__((always_inline))              \
+            { FAST_PINS_IF_PATTERN(PIN, SET) }                          \
+        void set(bool h) const __attribute__((always_inline))           \
+            { if (h) high(); else low(); }                              \
+        bool get() const __attribute__((always_inline))                 \
+            { FAST_PINS_IF_PATTERN(PIN, RGET) }                         \
+        void output() const __attribute__((always_inline))              \
+            { FAST_PINS_IF_PATTERN(DDR, SET) }                          \
+        void input() const __attribute__((always_inline))               \
+            { FAST_PINS_IF_PATTERN(DDR, CLR) }                          \
+        void direction(bool out) const __attribute__((always_inline))   \
+            { if (out) output(); else input(); }                        \
+        operator uint8_t() const __attribute__((always_inline))         \
+            { return pin; }                                             \
+    private:                                                            \
+        uint8_t pin;                                                    \
+    };                                                                  \
+                                                                        \
+    template <uint8_t pin>                                              \
+    struct FastPin                                                      \
+    {                                                                   \
+        FAST_PINS_CHECK(pin)                                            \
+        static void high() __attribute__((always_inline))               \
+            { FAST_PINS_IF_PATTERN(PORT, SET) }                         \
+        static void low() __attribute__((always_inline))                \
+            { FAST_PINS_IF_PATTERN(PORT, CLR) }                         \
+        static void toggle() __attribute__((always_inline))             \
+            { FAST_PINS_IF_PATTERN(PIN, SET) }                          \
+        static void set(bool h) __attribute__((always_inline))          \
+            { if (h) high(); else low(); }                              \
+        static bool get() __attribute__((always_inline))                \
+            { FAST_PINS_IF_PATTERN(PIN, RGET) }                         \
+        static void output() __attribute__((always_inline))             \
+            { FAST_PINS_IF_PATTERN(DDR, SET) }                          \
+        static void input() __attribute__((always_inline))              \
+            { FAST_PINS_IF_PATTERN(DDR, CLR) }                          \
+        static void direction(bool out) __attribute__((always_inline))  \
+            { if (out) output(); else input(); }                        \
+        operator FastAnyPin() const __attribute__((always_inline))      \
+            { return FastAnyPin(pin); }                                 \
+        operator uint8_t() const __attribute__((always_inline))         \
+            { return pin; }                                             \
     };
 
 // Implementations
