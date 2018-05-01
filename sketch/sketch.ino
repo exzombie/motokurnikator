@@ -19,8 +19,6 @@
 #include <FastPin.h>
 #include <EEPROM.h>
 
-static const unsigned long maxSpinTimeMeasurementDelayMs = 10000;
-static const unsigned int blinkMs = 100;
 
 static const FastPin<3> endSwOpen;
 static const FastPin<4> endSwClosed;
@@ -36,8 +34,12 @@ static const byte dayLevelPin = A0;
 static const byte nightLevelPin = A1;
 
 static const byte standbyDelayMs = 100;
-static const byte closeDirection = 0x00;
-static const byte openDirection = 0xff;
+static const unsigned int blinkMs = 100;
+static const unsigned long maxSpinTimeMeasurementDelayMs = 10000;
+
+enum class Direction: byte {
+  open, close
+};
 
 enum class Mode: byte {
     open, closed, opening, closing
@@ -53,7 +55,7 @@ static unsigned long maxSpinTimeMs = 1000;
 
 static const int maxSpinTimeMsEEOffset = 1;
 
-static void moveMotor(byte direction, bool noTimeout = false);
+static void moveMotor(Direction direction, bool noTimeout = false);
 
 void setup()
 {
@@ -143,7 +145,7 @@ void loop()
     case Mode::open:
         if (nighttime && !override) {
             changeMode(Mode::closing);
-            moveMotor(closeDirection);
+            moveMotor(Direction::close);
         } else {
             stopMotor();
             delay(standbyDelayMs);
@@ -152,19 +154,19 @@ void loop()
     case Mode::closed:
         if (daytime && !override) {
             changeMode(Mode::opening);
-            moveMotor(openDirection);
+            moveMotor(Direction::open);
         } else {
             stopMotor();
             delay(standbyDelayMs);
         }
         break;
     case Mode::opening:
-        moveMotor(openDirection);
+        moveMotor(Direction::open);
         if (nighttime && !override)
             changeMode(Mode::closing);
         break;
     case Mode::closing:
-        moveMotor(closeDirection);
+        moveMotor(Direction::close);
         if (daytime && !override)
             changeMode(Mode::opening);
         break;
@@ -192,11 +194,11 @@ inline static void stopMotor()
     for_pin(lowPin, motor1, motor2);
 }
 
-static void moveMotor(byte direction, bool noTimeout)
+static void moveMotor(Direction direction, bool noTimeout)
 {
     if (!noTimeout && millis() - lastMillisMotor > maxSpinTimeMs) {
         stopMotor();
-        if (direction == openDirection) {
+        if (direction == Direction::open) {
             changeMode(Mode::open);
         } else {
             changeMode(Mode::closed);
@@ -204,7 +206,7 @@ static void moveMotor(byte direction, bool noTimeout)
         return;
     }
 
-    if (direction == openDirection) {
+    if (direction == Direction::open) {
         motor2.low();
         motor1.high();
     } else {
@@ -214,10 +216,10 @@ static void moveMotor(byte direction, bool noTimeout)
 }
 
 static void maxSpinTimeMeasurement() {
-    byte direction = mode == Mode::open ? closeDirection : openDirection;
+    Direction direction = mode == Mode::open ? Direction::close : Direction::open;
     unsigned long spinTime1 = millis();
     moveMotor(direction, true);
-    if (direction == closeDirection) {
+    if (direction == Direction::close) {
         while (endSwClosed.get()) {}
     } else {
         while (endSwOpen.get()) {}
@@ -225,10 +227,10 @@ static void maxSpinTimeMeasurement() {
     stopMotor();
     spinTime1 = millis() - spinTime1;
 
-    direction = direction == closeDirection ? openDirection : closeDirection;
+    direction = direction == Direction::close ? Direction::open : Direction::close;
     unsigned long spinTime2 = millis();
     moveMotor(direction, true);
-    if (direction == closeDirection) {
+    if (direction == Direction::close) {
         while (endSwClosed.get()) {}
     } else {
         while (endSwOpen.get()) {}
